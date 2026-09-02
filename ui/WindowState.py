@@ -1,3 +1,6 @@
+from util.TrackedVar import TrackedVar
+
+
 class WindowState:
-    window_title: str = "Sound Box"
-    fps_cap: int = 60
+    window_title: TrackedVar[str] = TrackedVar("Sound Box")
+    fps_cap: TrackedVar[int] = TrackedVar(60)
