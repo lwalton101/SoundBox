@@ -1,6 +1,9 @@
-from pyray import VIOLET,WHITE, begin_drawing, clear_background, close_window, draw_fps, draw_text, end_drawing, init_window, is_key_pressed, poll_input_events, set_target_fps, set_window_title, window_should_close
+from pyray import VIOLET,WHITE, begin_drawing, Color, clear_background, close_window, draw_fps, draw_text, end_drawing, init_window, is_key_pressed, poll_input_events, set_target_fps, set_window_title, window_should_close
 
 from ui.WindowState import WindowState
+from ui.widget.PolyWidget import PolyWidget
+from ui.widget.RectWidget import RectWidget
+from ui.widget.Widget import Widget
 
 class Window:
     state: WindowState
@@ -22,7 +25,16 @@ class Window:
     def render(self) -> bool:
         begin_drawing()
         clear_background(WHITE)  # noqa: F821
-        draw_text("Hello world", 190, 200, 20, VIOLET)
+        root_widget = Widget(self.state, 0,0)
+        rect_widget = RectWidget(self.state, 10, 500, 500, 30, Color(255,0,0,255))
+        rect_widget_two = RectWidget(self.state, 10, 10, 500, 30, Color(0,0,255,255))
+        triangle = PolyWidget(self.state, 500, 600, 6, 150, 0, Color(0, 255, 0, 255))
+
+        root_widget.children.append(rect_widget)
+        root_widget.children.append(triangle)
+        rect_widget.children.append(rect_widget_two)
+
+        root_widget.render(0,0)
         draw_fps(10,10)
         end_drawing()
         return window_should_close()
