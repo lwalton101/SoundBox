@@ -29,7 +29,7 @@ class Window:
         rect_widget = RectWidget(self.state, 10, 500, 500, 30, Color(255,0,0,255))
         rect_widget_two = RectWidget(self.state, 10, 10, 500, 30, Color(0,0,255,255))
         triangle = PolyWidget(self.state, 500, 600, 6, 150, 0, Color(0, 255, 0, 255))
-
+        triangle.visible = False
         root_widget.children.append(rect_widget)
         root_widget.children.append(triangle)
         rect_widget.children.append(rect_widget_two)
