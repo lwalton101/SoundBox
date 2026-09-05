@@ -4,11 +4,11 @@ from ui.WindowState import WindowState
 
 
 class Widget():
-    children: list[Self]
-    x: int
-    y: int
+    children: list["Widget"]
+    x: float
+    y: float
     visible: bool
-    def __init__(self, state: WindowState, x: int, y: int) -> None:
+    def __init__(self, state: WindowState, x: float, y: float) -> None:
         self.state = state
         self.children = []
         self.x = x
@@ -16,9 +16,9 @@ class Widget():
         self.visible = True
         pass
 
-    def render(self, parentX: int, parentY: int):
+    def render(self, parentX: float, parentY: float):
+        if not self.visible:
+            return
+
         for child in self.children:
-            if not child.visible:
-                continue
-            child.render(self.x, self.y)
-        pass
+            child.render(parentX, parentY)

@@ -1,23 +1,28 @@
 from typing import override
 
-from pyray import Color, draw_rectangle
+from pyray import Color, Rectangle, draw_rectangle_rec
 
 from ui.WindowState import WindowState
 from ui.widget.Widget import Widget
 
-
 class RectWidget(Widget):
-    width: int
-    height: int
+    width: float
+    height: float
     color: Color
 
-    def __init__(self, state: WindowState, x: int, y: int, width: int, height: int, color: Color) -> None:
+    def __init__(self, state: WindowState, x: float, y: float, width: int, height: int, color: Color) -> None:
         super().__init__(state, x, y)
         self.width = width
         self.height = height
         self.color = color
 
     @override
-    def render(self, parentX: int, parentY: int):
-        draw_rectangle(self.x + parentX, self.y + parentY, self.width, self.height, self.color)
-        super().render(self.x, self.y)
+    def render(self, parentX: float, parentY: float):
+        x = self.x + parentX
+        y = self.y + parentY
+
+        draw_rectangle_rec(
+            Rectangle(x, y, self.width, self.height),
+            self.color,
+        )
+        super().render(x, y)
