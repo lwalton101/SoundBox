@@ -4,17 +4,37 @@ from PIL import Image
 import time
 
 
+# --------------------------------------------------
+# Settings
+# --------------------------------------------------
+
 WIDTH = 1280
 HEIGHT = 800
-SQUARE_SIZE = 450
-TEXTURE_PATH = "assets/hamilton.jpg"
 
+SQUARE_SIZE = 450
+ROTATION_SPEED = 30.0       # degrees per second
+
+TEXTURE_PATH = "assets/hamilton.jpg"
+TEXTURE_MAX_SIZE = 512
+
+MSAA_SAMPLES = 4
+
+
+# --------------------------------------------------
+# Load texture
+# --------------------------------------------------
 
 def load_texture(path):
-    image = Image.open(path).convert("RGBA")
+    image = Image.open(path).convert("RGB")
 
-    # OpenGL texture origin is bottom-left.
-    image = image.transpose(Image.FLIP_TOP_BOTTOM)
+    # Reduce texture size for Raspberry Pi 3
+    image.thumbnail(
+        (TEXTURE_MAX_SIZE, TEXTURE_MAX_SIZE),
+        Image.Resampling.LANCZOS
+    )
+
+    # Flip vertically for OpenGL
+    image = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
 
     width, height = image.size
     pixels = image.tobytes()
@@ -22,14 +42,14 @@ def load_texture(path):
     texture = glGenTextures(1)
     glBindTexture(GL_TEXTURE_2D, texture)
 
-    # Important for RGBA textures.
+    # RGB rows are not always aligned to 4 bytes
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
 
-    # Mipmap filtering greatly reduces shimmering when rotated.
+    # Smooth texture filtering
     glTexParameteri(
         GL_TEXTURE_2D,
         GL_TEXTURE_MIN_FILTER,
-        GL_LINEAR_MIPMAP_LINEAR
+        GL_LINEAR
     )
 
     glTexParameteri(
@@ -38,7 +58,7 @@ def load_texture(path):
         GL_LINEAR
     )
 
-    # Don't repeat at the edges.
+    # Prevent texture bleeding at the edges
     glTexParameteri(
         GL_TEXTURE_2D,
         GL_TEXTURE_WRAP_S,
@@ -51,66 +71,49 @@ def load_texture(path):
         GL_CLAMP_TO_EDGE
     )
 
-    # Upload base texture.
     glTexImage2D(
         GL_TEXTURE_2D,
         0,
-        GL_RGBA,
+        GL_RGB,
         width,
         height,
         0,
-        GL_RGBA,
+        GL_RGB,
         GL_UNSIGNED_BYTE,
         pixels
     )
 
-    # Generate mipmaps.
-    glGenerateMipmap(GL_TEXTURE_2D)
-
-    # Optional anisotropic filtering.
-    try:
-        extensions = glGetString(GL_EXTENSIONS).decode()
-
-        if "GL_EXT_texture_filter_anisotropic" in extensions:
-            max_aniso = glGetFloatv(
-                GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
-            )
-
-            # Don't go crazy on a Pi 3.
-            aniso = min(float(max_aniso), 4.0)
-
-            glTexParameterf(
-                GL_TEXTURE_2D,
-                GL_TEXTURE_MAX_ANISOTROPY_EXT,
-                aniso
-            )
-
-            print("Anisotropic filtering:", aniso)
-
-    except Exception:
-        pass
-
     glBindTexture(GL_TEXTURE_2D, 0)
+
+    print(f"Texture size: {width}x{height}")
 
     return texture
 
 
+# --------------------------------------------------
+# Main
+# --------------------------------------------------
+
 def main():
+
+    # --------------------------------------------------
+    # GLFW
+    # --------------------------------------------------
 
     if not glfw.init():
         raise RuntimeError("Failed to initialize GLFW")
 
-    # OpenGL 2.1.
+    # OpenGL 2.1
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
 
-    # Request multisampling for smoother quad edges.
-    glfw.window_hint(glfw.SAMPLES, 4)
+    # 4x Multisample Anti-Aliasing
+    glfw.window_hint(glfw.SAMPLES, MSAA_SAMPLES)
 
     window = glfw.create_window(
         WIDTH,
         HEIGHT,
-        "OpenGL Rotating Image",
+        "OpenGL Textured Square",
         None,
         None
     )
@@ -121,8 +124,12 @@ def main():
 
     glfw.make_context_current(window)
 
-    # VSync.
-    glfw.swap_interval(1)
+    # Disable VSync for performance testing
+    glfw.swap_interval(0)
+
+    # --------------------------------------------------
+    # OpenGL information
+    # --------------------------------------------------
 
     print(
         "OpenGL version:",
@@ -139,32 +146,30 @@ def main():
         glGetString(GL_VENDOR).decode()
     )
 
-    # ------------------------------------------------
-    # OpenGL setup
-    # ------------------------------------------------
+    # Check MSAA
+    samples = glGetIntegerv(GL_SAMPLES)
+
+    print("MSAA samples:", samples)
+
+    # --------------------------------------------------
+    # OpenGL state
+    # --------------------------------------------------
+
+    glDisable(GL_DEPTH_TEST)
+    glDisable(GL_CULL_FACE)
 
     glEnable(GL_TEXTURE_2D)
 
-    # Smooth polygon edges.
+    # Enable multisample anti-aliasing
     glEnable(GL_MULTISAMPLE)
 
-    # Use smooth shading.
-    glShadeModel(GL_SMOOTH)
+    # --------------------------------------------------
+    # Framebuffer size
+    # --------------------------------------------------
 
-    # White texture colour.
-    glColor4f(
-        1.0,
-        1.0,
-        1.0,
-        1.0
-    )
-
-    # ------------------------------------------------
-    # Projection
-    # ------------------------------------------------
-
-    framebuffer_width, framebuffer_height = \
+    framebuffer_width, framebuffer_height = (
         glfw.get_framebuffer_size(window)
+    )
 
     glViewport(
         0,
@@ -172,6 +177,10 @@ def main():
         framebuffer_width,
         framebuffer_height
     )
+
+    # --------------------------------------------------
+    # Projection
+    # --------------------------------------------------
 
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
@@ -186,69 +195,73 @@ def main():
     )
 
     glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
 
-    # ------------------------------------------------
-    # Texture
-    # ------------------------------------------------
+    # --------------------------------------------------
+    # Load texture
+    # --------------------------------------------------
 
     texture = load_texture(TEXTURE_PATH)
 
-    # ------------------------------------------------
-    # Animation
-    # ------------------------------------------------
+    # --------------------------------------------------
+    # Timing
+    # --------------------------------------------------
 
     rotation = 0.0
 
-    last_time = time.perf_counter()
-    fps_timer = last_time
+    previous_time = time.perf_counter()
 
-    frames = 0
-    fps = 0.0
+    fps_timer = previous_time
+    frame_count = 0
 
-    # ------------------------------------------------
+    # --------------------------------------------------
     # Main loop
-    # ------------------------------------------------
+    # --------------------------------------------------
 
     while not glfw.window_should_close(window):
 
-        now = time.perf_counter()
+        current_time = time.perf_counter()
 
-        dt = now - last_time
-        last_time = now
+        dt = current_time - previous_time
+        previous_time = current_time
 
-        # 30 degrees per second.
-        rotation += 30.0 * dt
+        # Prevent a huge rotation jump after a pause
+        dt = min(dt, 0.1)
 
-        # Keep angle small.
+        # Constant rotation speed
+        rotation += ROTATION_SPEED * dt
+
         if rotation >= 360.0:
             rotation -= 360.0
 
-        # ------------------------------------------------
+        # --------------------------------------------------
         # Clear
-        # ------------------------------------------------
+        # --------------------------------------------------
 
         glClearColor(
-            1.0,
-            1.0,
-            1.0,
+            0.0,
+            0.0,
+            0.0,
             1.0
         )
 
         glClear(GL_COLOR_BUFFER_BIT)
 
-        # ------------------------------------------------
-        # Model transform
-        # ------------------------------------------------
+        # --------------------------------------------------
+        # Model matrix
+        # --------------------------------------------------
 
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
+        # Move to screen center
         glTranslatef(
-            framebuffer_width / 2,
-            framebuffer_height / 2,
-            0
+            framebuffer_width / 2.0,
+            framebuffer_height / 2.0,
+            0.0
         )
 
+        # Rotate around the center
         glRotatef(
             rotation,
             0.0,
@@ -256,30 +269,57 @@ def main():
             1.0
         )
 
-        # ------------------------------------------------
-        # Draw image
-        # ------------------------------------------------
+        # Move quad so its center is at (0, 0)
+        half_size = SQUARE_SIZE / 2.0
 
-        half = SQUARE_SIZE / 2
+        glTranslatef(
+            -half_size,
+            -half_size,
+            0.0
+        )
+
+        # --------------------------------------------------
+        # Bind texture
+        # --------------------------------------------------
 
         glBindTexture(
             GL_TEXTURE_2D,
             texture
         )
 
+        # --------------------------------------------------
+        # Draw textured quad
+        # --------------------------------------------------
+
         glBegin(GL_QUADS)
 
+        # Top-left
         glTexCoord2f(0.0, 0.0)
-        glVertex2f(-half, -half)
+        glVertex2f(
+            0.0,
+            0.0
+        )
 
+        # Top-right
         glTexCoord2f(1.0, 0.0)
-        glVertex2f(half, -half)
+        glVertex2f(
+            SQUARE_SIZE,
+            0.0
+        )
 
+        # Bottom-right
         glTexCoord2f(1.0, 1.0)
-        glVertex2f(half, half)
+        glVertex2f(
+            SQUARE_SIZE,
+            SQUARE_SIZE
+        )
 
+        # Bottom-left
         glTexCoord2f(0.0, 1.0)
-        glVertex2f(-half, half)
+        glVertex2f(
+            0.0,
+            SQUARE_SIZE
+        )
 
         glEnd()
 
@@ -288,42 +328,44 @@ def main():
             0
         )
 
-        # ------------------------------------------------
-        # FPS
-        # ------------------------------------------------
-
-        frames += 1
-
-        if now - fps_timer >= 1.0:
-
-            fps = frames / (now - fps_timer)
-
-            print(f"FPS: {fps:.1f}")
-
-            frames = 0
-            fps_timer = now
-
-        glfw.set_window_title(
-            window,
-            f"OpenGL Rotating Image - {fps:.1f} FPS"
-        )
-
-        # ------------------------------------------------
-        # Present
-        # ------------------------------------------------
+        # --------------------------------------------------
+        # Display
+        # --------------------------------------------------
 
         glfw.swap_buffers(window)
         glfw.poll_events()
 
-    # ------------------------------------------------
+        # --------------------------------------------------
+        # FPS
+        # --------------------------------------------------
+
+        frame_count += 1
+
+        if current_time - fps_timer >= 1.0:
+
+            fps = (
+                frame_count /
+                (current_time - fps_timer)
+            )
+
+            print(f"FPS: {fps:.1f}")
+
+            frame_count = 0
+            fps_timer = current_time
+
+    # --------------------------------------------------
     # Cleanup
-    # ------------------------------------------------
+    # --------------------------------------------------
 
     glDeleteTextures([texture])
 
     glfw.destroy_window(window)
     glfw.terminate()
 
+
+# --------------------------------------------------
+# Start
+# --------------------------------------------------
 
 if __name__ == "__main__":
     main()
