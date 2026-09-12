@@ -10,7 +10,7 @@ class RectWidget(Widget):
     height: float
     color: Color
 
-    def __init__(self, state: WindowState, x: float, y: float, width: int, height: int, color: Color) -> None:
+    def __init__(self, state: WindowState, x: float, y: float, width: float, height: float, color: Color) -> None:
         super().__init__(state, x, y)
         self.width = width
         self.height = height

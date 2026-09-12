@@ -42,14 +42,6 @@ class Window:
         begin_drawing()
         clear_background(WHITE)  # noqa: F821
 
-
-        self.rect_widget.x += 100 * get_frame_time()
-        self.rotating_rect.rotation += 100 * get_frame_time()
-
-
-        if self.rect_widget.x > 1280:
-            self.rect_widget.x = 0
-
         self.root_widget.render(0,0)
         draw_fps(10,10)
         end_drawing()
