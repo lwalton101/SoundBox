@@ -20,6 +20,5 @@ class PolyWidget(Widget):
         self.rotation = rotation
 
     @override
-    def render(self, parentX: float, parentY: float):
-        draw_poly(Vector2(self.x + parentX, self.y + parentY), self.sides, self.radius, self.rotation, self.color)
-        super().render(self.x + parentX, self.y + parentY)
+    def draw(self, x: float, y: float):
+        draw_poly(Vector2(self.x, self.y), self.sides, self.radius, self.rotation, self.color)

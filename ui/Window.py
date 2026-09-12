@@ -7,8 +7,6 @@ from ui.widget.RectWidget import RectWidget
 from ui.widget.Widget import Widget
 
 class Window:
-    startX: float = 0
-    startY: float = 0
     state: WindowState
     def __init__(self):
         self.state = WindowState()

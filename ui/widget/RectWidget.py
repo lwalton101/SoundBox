@@ -17,12 +17,8 @@ class RectWidget(Widget):
         self.color = color
 
     @override
-    def render(self, parentX: float, parentY: float):
-        x = self.x + parentX
-        y = self.y + parentY
-
+    def draw(self, x: float, y: float):
         draw_rectangle_rec(
             Rectangle(x, y, self.width, self.height),
-            self.color,
+            self.color
         )
-        super().render(x, y)
