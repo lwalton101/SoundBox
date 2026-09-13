@@ -47,5 +47,8 @@ class Window:
         end_drawing()
         return window_should_close()
 
+    def update(self):
+        self.root_widget.update(get_frame_time())
+
     def close(self):
         close_window()

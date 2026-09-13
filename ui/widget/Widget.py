@@ -1,5 +1,8 @@
-from typing import Self
+from typing import List, Self, final
 
+from pyray import get_frame_time
+
+from events import Event
 from ui.WindowState import WindowState
 
 
@@ -8,12 +11,14 @@ class Widget():
     x: float
     y: float
     visible: bool
+    active: bool
     def __init__(self, state: WindowState, x: float, y: float) -> None:
         self.state = state
         self.children = []
         self.x = x
         self.y = y
         self.visible = True
+        self.active = True
         pass
 
     def draw(self, x: float, y: float):
@@ -30,3 +35,16 @@ class Widget():
 
         for child in self.children:
             child.render(absolute_x, absolute_y)
+
+    def on_update(self, dt: float):
+        pass
+
+    @final
+    def update(self, dt: float):
+        if not self.active:
+            return
+
+        self.on_update(dt)
+
+        for child in self.children:
+            child.update(dt)
