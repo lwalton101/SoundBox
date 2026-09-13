@@ -5,6 +5,7 @@ from events import Event
 from ui.WindowState import WindowState
 from ui.widget.PolyWidget import PolyWidget
 from ui.widget.RectWidget import RectWidget
+from ui.widget.TextWidget import TextWidget
 from ui.widget.Widget import Widget
 
 class Window:
@@ -31,6 +32,9 @@ class Window:
 
         self.rotating_rect = PolyWidget(self.state, 500, 500, 4, 150, 150, VIOLET)
         self.root_widget.children.append(self.rotating_rect)
+
+        self.text_widget = TextWidget(self.state, 20, 400)
+        self.root_widget.children.append(self.text_widget)
         pass
 
     def on_title_changed(self, title: str):
