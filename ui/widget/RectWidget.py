@@ -2,6 +2,7 @@ from typing import override
 
 from pyray import Color, Rectangle, draw_rectangle_rec
 
+from events import Event
 from ui.WindowState import WindowState
 from ui.widget.Widget import Widget
 

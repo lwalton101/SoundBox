@@ -1,6 +1,7 @@
 from pyray import VIOLET,WHITE, begin_drawing, Color, clear_background, close_window, draw_fps, draw_text, end_drawing, get_frame_time, init_window, is_key_pressed, poll_input_events, set_config_flags, set_target_fps, set_window_title, window_should_close
 from raylib import FLAG_MSAA_4X_HINT, FLAG_VSYNC_HINT, FLAG_WINDOW_UNDECORATED
 
+from events import Event
 from ui.WindowState import WindowState
 from ui.widget.PolyWidget import PolyWidget
 from ui.widget.RectWidget import RectWidget
@@ -49,6 +50,9 @@ class Window:
 
     def update(self):
         self.root_widget.update(get_frame_time())
+
+    def trigger_event(self, event: Event):
+        self.root_widget.trigger_event(event)
 
     def close(self):
         close_window()

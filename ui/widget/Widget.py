@@ -48,3 +48,16 @@ class Widget():
 
         for child in self.children:
             child.update(dt)
+
+    def on_event(self, event: Event):
+        pass
+
+    @final
+    def trigger_event(self, event: Event):
+        if not self.active:
+            return
+
+        self.on_event(event)
+
+        for child in self.children:
+            child.on_event(event)
