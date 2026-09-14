@@ -1,6 +1,7 @@
 from api.server.WebsocketServer import WebsocketServer
 from events import Event
 from ui.Window import Window
+from ui.fonts import Fonts
 
 print("Soundbox initialising")
 
@@ -20,6 +21,7 @@ while not should_close:
         window.trigger_event(event)
     window.update()
     should_close = window.render()
+    Fonts.clear_cached_fonts()
 
 window.close()
 api_server.stop()
