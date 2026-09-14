@@ -48,7 +48,7 @@ class Window:
 
     def render(self) -> bool:
         begin_drawing()
-        clear_background(WHITE)  # noqa: F821
+        clear_background(self.state.background_color.get())  # noqa: F821
 
         self.root_widget.render(0,0)
         draw_fps(10,10)
