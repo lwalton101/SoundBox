@@ -36,7 +36,7 @@ class Window:
         self.rotating_rect = PolyWidget(self.state, 500, 500, 4, 150, 150, VIOLET)
         self.root_widget.children.append(self.rotating_rect)
 
-        self.text_widget = TextWidget(self.state, 20, 400)
+        self.text_widget = TextWidget(self.state, 20, 400, font_size=TextWidget.LARGE_SIZE)
         self.root_widget.children.append(self.text_widget)
         pass
 
