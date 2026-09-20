@@ -1,0 +1,7 @@
+name: Dev
+variables:
+  - name: host
+    value: localhost
+    description: ""
+  - name: port
+    value: "8765"

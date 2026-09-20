@@ -1,0 +1,12 @@
+opencollection: 1.0.0
+info:
+  name: "SoundBox Workspace"
+  type: workspace
+
+collections:
+  - name: "Untitled Collection"
+    path: "collections/Untitled Collection"
+
+specs:
+
+docs: ''
