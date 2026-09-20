@@ -5,6 +5,7 @@ from raylib import FLAG_MSAA_4X_HINT, FLAG_VSYNC_HINT, FLAG_WINDOW_UNDECORATED
 
 from events import Event
 from ui.WindowState import WindowState
+from ui.widget.EventDebugWidget import EventDebugWidget
 from ui.widget.PolyWidget import PolyWidget
 from ui.widget.RectWidget import RectWidget
 from ui.widget.TextWidget import TextWidget
@@ -38,7 +39,9 @@ class Window:
 
         self.text_widget = TextWidget(self.state, 20, 400, font_size=TextWidget.LARGE_SIZE)
         self.root_widget.children.append(self.text_widget)
-        pass
+
+        self.event_debug = EventDebugWidget(self.state, 0,0)
+        self.root_widget.children.append(self.event_debug)
 
     def on_title_changed(self, title: str):
         set_window_title(title)
