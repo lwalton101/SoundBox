@@ -22,6 +22,9 @@ class WebsocketServer:
         print("handling test")
 
     async def event_handler(self, message: dict, websocket: ServerConnection):
+        if "event_type" not in message.keys():
+            await websocket.send(json.dumps({"type": "error", "error": "event_type not found"}))
+            return
         event_type = message["event_type"]
         if event_type not in Event._member_names_:
             await websocket.send(json.dumps({"type": "error", "error": "json not valid"}))
@@ -47,7 +50,6 @@ class WebsocketServer:
 
             handler = self.handlers[type]
             await handler(json_parsed, websocket)
-            await websocket.send(type)
 
     async def _run(self):
         self.loop = asyncio.get_running_loop()
