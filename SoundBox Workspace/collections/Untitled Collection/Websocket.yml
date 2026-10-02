@@ -1,0 +1,18 @@
+info:
+  name: Websocket
+  type: websocket
+  seq: 1
+
+websocket:
+  url: ws://{{host}}:{{port}}
+  message:
+    - title: message 1
+      selected: false
+      message:
+        type: json
+        data: '{"type": "event", "event_type": "VOLUME_UP"}'
+  auth: inherit
+
+settings:
+  timeout: 0
+  keepAliveInterval: 0
