@@ -10,7 +10,7 @@ websocket:
       selected: false
       message:
         type: json
-        data: ""
+        data: '{"type": "event", "event_type": "VOLUME_UP"}'
   auth: inherit
 
 settings:
