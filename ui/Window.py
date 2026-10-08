@@ -72,6 +72,8 @@ class Window:
             
         self.event_debug = EventDebugWidget(self.state, 0,0)
         self.root_widget.children.append(self.event_debug)
+        
+        self.time = 0
 
     def on_title_changed(self, title: str):
         set_window_title(title)
@@ -90,6 +92,11 @@ class Window:
 
     def update(self):
         self.root_widget.update(get_frame_time())
+        
+        self.time += get_frame_time()
+        if self.time > 1:
+            self.progress_circle.x += 1
+            self.time = 0
 
     def trigger_event(self, event: Event):
         self.root_widget.trigger_event(event)
