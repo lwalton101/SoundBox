@@ -1,6 +1,6 @@
 from typing import override
 
-from pyray import Color, Rectangle, draw_rectangle_rec
+from pyray import Color, Rectangle, draw_rectangle_rec, draw_rectangle_rounded
 
 from events import Event
 from ui.WindowState import WindowState
@@ -11,15 +11,19 @@ class RectWidget(Widget):
     height: float
     color: Color
 
-    def __init__(self, state: WindowState, x: float, y: float, width: float, height: float, color: Color) -> None:
+    def __init__(self, state: WindowState, x: float, y: float, width: float, height: float, color: Color, roundness: float = 0, segments: int = 1) -> None:
         super().__init__(state, x, y)
         self.width = width
         self.height = height
         self.color = color
+        self.roundness = roundness
+        self.segments = segments
 
     @override
     def draw(self, x: float, y: float):
-        draw_rectangle_rec(
+        draw_rectangle_rounded(
             Rectangle(x, y, self.width, self.height),
+            self.roundness,
+            self.segments,
             self.color
         )
