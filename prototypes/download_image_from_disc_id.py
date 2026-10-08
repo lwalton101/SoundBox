@@ -26,7 +26,7 @@ def get_image_from_release_id(release_id):
             img = Image.open(BytesIO(response.content))
         except UnidentifiedImageError:
             print(response.content)
-        img = ImageOps.contain(img, (500, 500), Image.LANCZOS)
+        img = ImageOps.contain(img, (500, 500), Image.Resampling.LANCZOS)
         print(img.size)
         img.save(f"assets/discs/{release_id}.png")
         continue
