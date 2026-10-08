@@ -40,10 +40,16 @@ class Window:
         self.artist = TextWidget(self.state, 1280 / 100 * 35, 640, font_size=TextWidget.MEDIUM_SIZE, centered=True, text="Olivia Rodrigo", color=GRAY, spacing=-1)
         self.root_widget.children.append(self.artist)
         
+        self.song_progress = 0.25
+        self.bar_width = 400
+        
         self.bar = RectWidget(self.state, 1280 / 100 * 35- 200, 690, width=400, height=8, roundness=10, segments=100, color=GRAY)
         self.root_widget.children.append(self.bar)
         
-        self.progress_circle = CircleWidget(self.state, 1280 / 100 * 35- 200 + (4 * 25), 690 + 8 / 2, 16, BLUE)
+        self.bar_part = RectWidget(self.state, 1280 / 100 * 35- 200, 690, width=self.song_progress * self.bar_width, height=8, roundness=10, segments=100, color=WHITE)
+        self.root_widget.children.append(self.bar_part)
+        
+        self.progress_circle = CircleWidget(self.state, 1280 / 100 * 35- 200 + (4 * 25), 690 + 8 / 2, 10, BLUE)
         self.root_widget.children.append(self.progress_circle)
         
         self.test_circle = PolyWidget(self.state, 100, 100, 750, 50, 0, RED)
