@@ -8,12 +8,19 @@ from ui.widget.Widget import Widget
 
 class LineWidget(Widget):
     
-    def __init__(self, state: WindowState, x: float, y: float, color: Color = WHITE, length: float = 100.0, thickness: float = 1.0) -> None:
+    def __init__(self, state: WindowState, x: float, y: float, color: Color = WHITE, length: float = 100.0, thickness: float = 1.0, horizontal: bool = True) -> None:
         super().__init__(state, x, y)
         self.color = color
         self.length = length
         self.thickness = thickness
+        self.horizontal = horizontal
         
     @override
     def draw(self, x: float, y: float):
-        draw_line_ex((x, y), (x + self.length, y), self.thickness, self.color)
+        xPos = x
+        yPos = y
+        if self.horizontal:
+            xPos = x + self.length
+        else:
+            yPos = y + self.length
+        draw_line_ex((x, y), (xPos, yPos), self.thickness, self.color)
