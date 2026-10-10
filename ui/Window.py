@@ -16,6 +16,8 @@ from ui.widget.PolyWidget import PolyWidget
 from ui.widget.RectWidget import RectWidget
 from ui.widget.TextWidget import TextWidget
 from ui.widget.Widget import Widget
+from ui.widget.screen.AlbumScreenWidget import AlbumScreenWidget
+from ui.widget.screen.AlbumSelectWidget import AlbumSelectWidget
 
 class Window:
     state: WindowState
@@ -31,11 +33,11 @@ class Window:
 
         self.root_widget = Widget(self.state, 0,0)
         
-        self.album_image = ChangingImageWidget(self.state, 1280 / 100 * 35, 300, 500, 500, "discs/5817355c-0ea6-4662-877f-3070c262b124.png", file_paths= [f"discs/{f}" for f in listdir("./assets/discs") if isfile(join("./assets/discs", f))], centered=True)
-        self.root_widget.children.append(self.album_image)
+        self.album_screen = AlbumScreenWidget(self.state, 0, 0, 1280 / 100 * 70, 800)
+        self.root_widget.children.append(self.album_screen)
         
-        self.song_title = TextWidget(self.state, 1280 / 100 * 35, 600, font_size=TextWidget.LARGE_SIZE, centered=True, text="the cure")
-        self.root_widget.children.append(self.song_title)
+        self.album_select_screen = AlbumSelectWidget(self.state, 1280 / 100 * 70, 0, 1280 / 100 * 30, 800)
+        self.root_widget.children.append(self.album_select_screen)
         
         self.artist = TextWidget(self.state, 1280 / 100 * 35, 640, font_size=TextWidget.MEDIUM_SIZE, centered=True, text="Olivia Rodrigo", color=GRAY, spacing=-1)
         self.root_widget.children.append(self.artist)
@@ -52,28 +54,15 @@ class Window:
         self.progress_circle = CircleWidget(self.state, 1280 / 100 * 35- 200 + (4 * 25), 690 + 8 / 2, 10, BLUE)
         self.root_widget.children.append(self.progress_circle)
         
-        self.test_circle = PolyWidget(self.state, 100, 100, 750, 50, 0, RED)
-        self.root_widget.children.append(self.test_circle)
-        
         self.progress_text = TextWidget(self.state, 1280 / 100 * 35, 735, TextWidget.MEDIUM_SIZE, text="1:14 / 4:57", centered=True, color=GRAY)
         self.root_widget.children.append(self.progress_text)
         
         self.dividing_line = LineWidget(self.state, 1280 / 100 * 70, 0, horizontal=False, length=1280, thickness=3, color=GRAY)
         self.root_widget.children.append(self.dividing_line)
-        
-        self.album_title = TextWidget(self.state, 1280 / 100 * 85, 38, TextWidget.LARGE_SIZE, text="Unreal Unearth", centered=True, spacing=-1)
-        self.root_widget.children.append(self.album_title)
-        
+
         self.dividing_line_album = LineWidget(self.state, 1280 / 100 * 70, 80, horizontal=True, length=1280 / 100 * 30, thickness=3, color=GRAY)
         self.root_widget.children.append(self.dividing_line_album)
-        i = 0
-        for x in ["1 - all-american bitch", "2 - bad idea right?", "3 - vampire", "4 - lacy", "5 - ballad of a homesch..."]:
-            color = GRAY
-            if i == 2:
-                color = WHITE
-            text = TextWidget(self.state, 1280 / 100 * 70 + 10, 90 + i * 60, font_size=TextWidget.MEDIUM_SIZE, text=x, color=color, spacing=0)
-            self.root_widget.children.append(text)
-            i += 1
+        
             
             
         self.event_debug = EventDebugWidget(self.state, 0,0)

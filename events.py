@@ -8,5 +8,7 @@ class Event(Enum):
     VOLUME_DOWN = 1
     NAV_UP = 2
     NAV_DOWN = 3
+    DISC_ENTER = 4
+    DISC_EXIT = 5
 
     #ws events (100+)
